@@ -137,7 +137,7 @@ DROP TABLE tem_table;
 
 SELECT * FROM tem_table;
 
-
+--  Insercion de los datos 
 
 INSERT INTO usuario (id, nombre_usuario, email, contraseña, rol) 
 VALUES (1,'jdoe', 'jdoe@email.com', 'hashedpassword1', 'empleado'),
@@ -657,6 +657,260 @@ VALUES (1, 1, 3, 2, 1, true, '2024-07-01', '2024-07-05', '2024-07-05', 500, 10, 
 (98, 98, 2, 4, 5, true, '2024-09-30', '2024-10-10', '2024-10-10', 720, 15, 612, 612),
 (99, 99, 1, 5, 2, false, '2024-10-25', '2024-11-04', '2024-11-04', 805, 10, 724.5, 724.5),
 (100, 100, 5, 3, 4, true, '2024-12-10', '2024-12-17', '2024-12-17', 600, 5, 570, 570);
+
+
+INSERT INTO sesion (id, id_usuario, ultima_vez) 
+VALUES (1, 1, '2024-06-01'),
+(2, 2, '2024-06-02'),
+(3, 3, '2024-06-03'),
+(4, 4, '2024-06-04'),
+(5, 5, '2024-06-05'),
+(6, 6, '2024-06-06'),
+(7, 7, '2024-06-07'),
+(8, 8, '2024-06-08'),
+(9, 9, '2024-06-09'),
+(10, 10, '2024-06-10'),
+(11, 11, '2024-06-11'),
+(12, 12, '2024-06-12'),
+(13, 13, '2024-06-13'),
+(14, 14, '2024-06-14'),
+(15, 15, '2024-06-15'),
+(16, 16, '2024-06-16'),
+(17, 17, '2024-06-17'),
+(18, 18, '2024-06-18'),
+(19, 19, '2024-06-19'),
+(20, 20, '2024-06-20'),
+(21, 21, '2024-06-21'),
+(22, 22, '2024-06-22'),
+(23, 23, '2024-06-23'),
+(24, 24, '2024-06-24'),
+(25, 25, '2024-06-25'),
+(26, 26, '2024-06-26'),
+(27, 27, '2024-06-27'),
+(28, 28, '2024-06-28'),
+(29, 29, '2024-06-29'),
+(30, 30, '2024-06-30'),
+(31, 31, '2024-07-01'),
+(32, 32, '2024-07-02'),
+(33, 33, '2024-07-03'),
+(34, 34, '2024-07-04'),
+(35, 35, '2024-07-05'),
+(36, 36, '2024-07-06'),
+(37, 37, '2024-07-07'),
+(38, 38, '2024-07-08'),
+(39, 39, '2024-07-09'),
+(40, 40, '2024-07-10'),
+(41, 41, '2024-07-11'),
+(42, 42, '2024-07-12'),
+(43, 43, '2024-07-13'),
+(44, 44, '2024-07-14'),
+(45, 45, '2024-07-15'),
+(46, 46, '2024-07-16'),
+(47, 47, '2024-07-17'),
+(48, 48, '2024-07-18'),
+(49, 49, '2024-07-19'),
+(50, 50, '2024-07-20');
+
+
+
+-- Creación de usuarios 
+
+CREATE ROLE admini;
+CREATE ROLE empleado;
+CREATE ROLE cliente;
+
+-- All permissies
+
+GRANT ALL PRIVILEGES ON *.* TO 'administrador';
+
+-- Permisos específicos para empleados
+
+GRANT SELECT, INSERT, UPDATE ON `alquiler` TO 'empleado';
+GRANT SELECT, INSERT, UPDATE ON `vehiculo` TO 'empleado';
+GRANT SELECT ON `cliente` TO 'empleado';
+
+-- Permisos específicos para clientes
+
+GRANT SELECT, INSERT ON `alquiler` TO 'cliente';
+GRANT SELECT ON `vehiculo` TO 'cliente';
+GRANT SELECT, INSERT ON `usuario` TO 'cliente';
+
+-- Administrador
+
+CREATE USER 'admini'@'localhost' IDENTIFIED BY 'adminpass';
+GRANT administrador TO 'admin'@'localhost';
+SET DEFAULT ROLE administrador FOR 'admin'@'localhost';
+
+ 
+-- Empleados
+CREATE USER 'empleado1'@'localhost' IDENTIFIED BY 'emppass1';
+GRANT empleado TO 'empleado1'@'localhost';
+SET DEFAULT ROLE empleado FOR 'empleado1'@'localhost';
+
+CREATE USER 'empleado2'@'localhost' IDENTIFIED BY 'emppass2';
+GRANT empleado TO 'empleado2'@'localhost';
+SET DEFAULT ROLE empleado FOR 'empleado2'@'localhost';
+
+
+-- Clientes
+CREATE USER 'cliente1'@'localhost' IDENTIFIED BY 'clientpass1';
+GRANT cliente TO 'cliente1'@'localhost';
+SET DEFAULT ROLE cliente FOR 'cliente1'@'localhost';
+
+CREATE USER 'cliente2'@'localhost' IDENTIFIED BY 'clientpass2';
+GRANT cliente TO 'cliente2'@'localhost';
+SET DEFAULT ROLE cliente FOR 'cliente2'@'localhost';
+
+
+-- Crear usuarios clientes
+CREATE USER 'cliente1'@'localhost' IDENTIFIED BY 'clientpass1';
+GRANT cliente TO 'cliente1'@'localhost';
+SET DEFAULT ROLE cliente FOR 'cliente1'@'localhost';
+
+CREATE USER 'cliente2'@'localhost' IDENTIFIED BY 'clientpass2';
+GRANT cliente TO 'cliente2'@'localhost';
+SET DEFAULT ROLE cliente FOR 'cliente2'@'localhost';
+
+-- Aplicar cambios
+FLUSH PRIVILEGES;
+
+-- ################################
+-- Consultas 
+
+-- login 
+
+SELECT * FROM usuario WHERE nombre_usuario = 'jdoe2@email.com' AND contraseña = 'hashedpassword2' ;
+
+-- Disponibilidad para alquilar 
+
+SELECT * FROM vehiculo
+WHERE tipo = 'sedan'
+  AND id NOT IN (
+    SELECT 2 FROM alquiler
+    WHERE fecha_salida <= '2024-09-25' AND fecha_llegada >= '2024-10-03'
+  );
+
+
+-- Procedimiento para registrar un nuevo alquiler 
+
+DELIMITER //
+
+CREATE PROCEDURE registrar_alquiler(
+    IN p_id_cliente INT,
+    IN p_id_empleado INT,
+    IN p_id_vehiculo INT,
+    IN p_id_sucursal_salida INT,
+    IN p_id_sucursal_entrada INT,
+    IN p_fecha_salida DATE,
+    IN p_fecha_llegada DATE,
+    IN p_fecha_esperada_llegada DATE,
+    IN p_valor_alquiler_semana DECIMAL,
+    IN p_porcentaje_descuento DECIMAL,
+    IN p_valor_cotizado DECIMAL,
+    IN p_valor_pagado DECIMAL
+)
+BEGIN
+    INSERT INTO alquiler (
+        id_cliente, id_empleado, id_vehiculo, id_sucursal_salida, id_sucursal_entrada, 
+        fecha_salida, fecha_llegada, fecha_esperada_llegada, 
+        valor_alquiler_semana, porcentaje_descuento, valor_cotizado, valor_pagado
+    )
+    VALUES (
+        p_id_cliente, p_id_empleado, p_id_vehiculo, p_id_sucursal_salida, p_id_sucursal_entrada, 
+        p_fecha_salida, p_fecha_llegada, p_fecha_esperada_llegada, 
+        p_valor_alquiler_semana, p_porcentaje_descuento, p_valor_cotizado, p_valor_pagado
+    );
+END //
+
+DELIMITER ;
+
+-- Procedimiento para consultar el historial de alquileres de un cliente 
+
+DELIMITER //
+
+CREATE PROCEDURE consultar_historial_alquileres(
+    IN p_id_cliente INT
+)
+BEGIN
+    SELECT a.id, a.id_vehiculo, a.id_sucursal_salida, a.id_sucursal_entrada, a.fecha_salida, a.fecha_llegada, a.fecha_esperada_llegada, a.valor_alquiler_semana, a.porcentaje_descuento, a.valor_cotizado, a.valor_pagado
+    FROM alquiler a
+    WHERE a.id_cliente = p_id_cliente;
+END //
+
+DELIMITER ;
+
+
+-- Llamado del procedimiento con id cliente 
+
+CALL consultar_historial_alquileres(1); 
+
+
+-- Procedimiento de iniciar sesion 
+
+DELIMITER //
+
+CREATE PROCEDURE iniciar_sesion(
+    IN p_email VARCHAR(40),
+    IN p_contraseña VARCHAR(30)
+)
+BEGIN
+    SELECT id, nombre_usuario, email, rol
+    FROM usuario
+    WHERE email = p_email
+    AND contraseña = p_contraseña;
+END //
+
+DELIMITER ;
+
+
+-- Llamado del procedimiento 
+
+CALL iniciar_sesion(
+    'usuario1@example.com', -- email
+    'password123' -- contraseña
+);
+
+
+-- Evento 
+
+-- Enviar mensaje por dia pasado 
+
+CREATE EVENT daily_reminder
+ON SCHEDULE EVERY 1 DAY
+DO
+BEGIN
+    INSERT INTO recordatorio (id_cliente, mensaje, fecha_envio)
+    SELECT id_cliente, CONCAT('Recuerde devolver el vehículo mañana: ', fecha_esperada_llegada), CURDATE()
+    FROM alquiler
+    WHERE fecha_esperada_llegada = CURDATE() + INTERVAL 1 DAY;
+END ;
+
+-- Cambiar estado luego de un vehiculo ser entregado 
+
+CREATE EVENT update_vehiculo_estado
+ON SCHEDULE EVERY 1 DAY
+DO
+BEGIN
+    UPDATE vehiculo v
+    INNER JOIN alquiler a ON v.id = a.id_vehiculo
+    SET v.estado = 'disponible'
+    WHERE a.fecha_esperada_llegada < CURDATE() 
+      AND v.estado = 'alquilado'
+      AND a.fecha_llegada IS NULL;
+END ;
+
+-- Trigger actualizar la ultima sesion del usuario 
+
+
+CREATE TRIGGER after_login_update_session
+AFTER INSERT ON sesion
+FOR EACH ROW
+BEGIN
+    UPDATE usuario
+    SET ultima_sesion = NEW.ultima_vez
+    WHERE id = NEW.id_usuario;
+END ;
+
 
 
 
