@@ -912,9 +912,9 @@ BEGIN
 END ;
 
 
--- link para visualizar doc de informe 
+-- link para visualizar doc de informe actualizado. 
 
-https://drive.google.com/file/d/1SI1rGcTCwhDXV9VJEsE5E3-e_8SoQmab/view?usp=sharing
+https://docs.google.com/document/d/1qOo_pwCqccLcD_tD00rlmeIUx4h6AeDY/edit?usp=sharing&ouid=101645324376839095025&rtpof=true&sd=true
 
 
 -- ## DESARROLLADO POR BRAYAN YESID LINDARTE ANAYA - D.I. 1010120365
